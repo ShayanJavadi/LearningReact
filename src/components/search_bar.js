@@ -7,7 +7,7 @@ class SearchBar extends Component {
     super(props);
     //instantiating our state variables
     //only time we change state like this
-    this.state = { term: 'Starting value' };
+    this.state = { term: '' };
   }
 
   //must have this method and return some jsx
@@ -15,12 +15,20 @@ class SearchBar extends Component {
     //events give an event object
     return (
       <div>
-        <input
-        value={this.state.term}
-        onChange={event => this.setState({ term: event.target.value })} />
-        Value of the input: {this.state.term}
+        <div className="search-bar">
+          <input
+          placeholder="Search"
+          value={this.state.term}
+          onChange={event => this.searchTerm(event.target.value)} />
+        // <button onClick={() => this.searchTerm(this.state.term)} type="button" name="button">Search</button>
+        </div>
       </div>
     );
+  }
+
+  searchTerm(term) {
+    this.setState({term});
+    this.props.searchTermChange(term);
   }
 }
 

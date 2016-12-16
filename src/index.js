@@ -1,7 +1,9 @@
+import _ from 'lodash';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import YTSearch from 'youtube-api-search';
 import VideoList from './components/video_list';
+import VideoDetail from './components/video_detail';
 import SearchBar from './components/search_bar';
 const API_KEY = 'AIzaSyBFrc6ZedAl0zioJ8zdyDsFot9jOIyagB4';
 // create a new component
@@ -9,31 +11,37 @@ const API_KEY = 'AIzaSyBFrc6ZedAl0zioJ8zdyDsFot9jOIyagB4';
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { videos:[] };
+    this.state = {
+      videos:[],
+      selectedVideo: null,
+      searchTerm: null
+     };
     //(key, search term, callback)
-    YTSearch({key: API_KEY, term: 'backing track'}, (videos) => {
+    this.videoSearch('  ');
+  }
+
+  videoSearch(term) {
+    YTSearch({key: API_KEY, term: term }, (videos) => {
       //returns 5 video objects
-      this.setState({ videos });
-      //this is es6 for this.setState({ videos: videos });
-      //when the key and the variable have the same name we can do this
+      this.setState({
+         videos: videos,
+         selectedVideo: videos[0]
+        });
       console.log(videos);
     });
   }
   render(){
+    const videoSearch = _.debounce((term) => { this.videoSearch(term) }, 300)
+
     return (
       <div>
-        <SearchBar />
-        {
-        //comments in JSX need to be wrapped in curly braces
-        //passing the videos to this component from App
-        //this is called passing props
-        //everytime this is rerendered this will also be refreshed
-        //when props are passed to a function they arrive as a function arguement
-        // const VideoList = (props) => do stuff with props
-        //when props are passed to a class they can be accessed from anywhere like so:
-        //this.props
-        }
-        <VideoList videos={this.state.videos} />
+        <SearchBar
+          searchTermChange={videoSearch}
+          />
+        <VideoDetail Video={this.state.selectedVideo}/>
+        <VideoList
+          onVideoSelect={selectedVideo => this.setState({selectedVideo}) }
+          videos={this.state.videos} />
       </div>
     );
   }
